@@ -1,6 +1,6 @@
 # Shopify Gym Food Lab — Theme Development
 
-Live store: https://gym-food-lab.myshopify.com
+Live store: https://gym-food-lab.myshopify.com/?preview_theme_id=158207475929
 
 ## Task 1 — Dynamic Discount Label
 
