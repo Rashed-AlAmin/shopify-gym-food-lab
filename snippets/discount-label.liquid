@@ -1,0 +1,36 @@
+{% assign discount_qty = product.metafields.custom.discount_threshold.value %}
+{% assign discount_pct = product.metafields.custom.percentage.value %}
+
+{% if discount_qty != blank and discount_pct != blank %}
+  {% assign unit_price = product.price %}
+  {% assign total_original = unit_price | times: discount_qty %}
+  {% assign discount_multiplier = 100 | minus: discount_pct %}
+  {% assign discounted_total = total_original | times: discount_multiplier | divided_by: 100 %}
+  {% assign discounted_display = discounted_total | money %}
+
+  {% comment %}
+    Check current cart quantity for this product server-side.
+    This is always accurate — no JS timing issues.
+  {% endcomment %}
+  {% assign cart_qty = 0 %}
+  {% for item in cart.items %}
+    {% if item.product_id == product.id %}
+      {% assign cart_qty = cart_qty | plus: item.quantity %}
+    {% endif %}
+  {% endfor %}
+
+  {% assign threshold_int = discount_qty | plus: 0 %}
+
+  {% if cart_qty < threshold_int %}
+    <div
+      class="discount-label"
+      data-discount-label
+      data-product-id="{{ product.id }}"
+      data-discount-qty="{{ discount_qty }}"
+    >
+      🏷️ Get {{ discount_qty }} for {{ discounted_display }}
+      <span class="discount-label__save">(Save {{ discount_pct }}%)</span>
+    </div>
+  {% endif %}
+
+{% endif %}
