@@ -1,0 +1,73 @@
+{% comment %}
+  Flavour Selection Modal — Task 2
+  Only renders on products that have flavour_options metafield set.
+  Variant flavour limits are read dynamically by JS.
+  Flavours stored as line item properties in cart.
+{% endcomment %}
+
+{% assign flavour_options = product.metafields.custom.flavour_options.value %}
+
+{% if flavour_options != blank %}
+
+  {% comment %} 
+    Build a JSON array of variants with their flavour limits
+    so JS can read limits without extra API calls.
+  {% endcomment %}
+  {% assign variant_limits = '' %}
+  <script>
+    window.variantFlavourLimits = {
+      {% for variant in product.variants %}
+        "{{ variant.id }}": {{ variant.metafields.custom.flavour_limit.value | default: 3 }}
+        {% unless forloop.last %},{% endunless %}
+      {% endfor %}
+    };
+  </script>
+
+  <!-- Flavour Modal Overlay -->
+  <div id="flavour-modal" class="flavour-modal-overlay" aria-hidden="true">
+    <div class="flavour-modal" role="dialog" aria-modal="true" aria-labelledby="flavour-modal-title">
+      
+      <div class="flavour-modal__header">
+        <h3 id="flavour-modal-title" class="flavour-modal__title">Choose Your Flavours</h3>
+        <p class="flavour-modal__subtitle">
+          Select up to <strong id="flavour-max-count">3</strong> flavours for your order
+        </p>
+        <button class="flavour-modal__close" id="flavour-modal-close" aria-label="Close modal">✕</button>
+      </div>
+
+      <div class="flavour-modal__grid" id="flavour-grid">
+        {% for flavour in flavour_options %}
+          <label class="flavour-option" data-flavour="{{ flavour }}">
+            <input
+              type="checkbox"
+              name="flavour"
+              value="{{ flavour }}"
+              class="flavour-checkbox"
+            >
+            <span class="flavour-option__name">{{ flavour }}</span>
+            <span class="flavour-option__check">✓</span>
+          </label>
+        {% endfor %}
+      </div>
+
+      <div class="flavour-modal__footer">
+        <p class="flavour-modal__selected-text">
+          <span id="flavour-selected-count">0</span> of 
+          <span id="flavour-max-count-2">3</span> selected
+        </p>
+        <button class="flavour-modal__apply" id="flavour-apply-btn" disabled>
+          Apply Flavours
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Trigger button — shown below variant selector -->
+  <div id="flavour-trigger-wrap" style="display:none; margin-top: 12px;">
+    <button type="button" id="flavour-trigger-btn" class="flavour-trigger-btn">
+      🍬 Choose Flavours <span id="flavour-trigger-label"></span>
+    </button>
+  </div>
+
+{% endif %}

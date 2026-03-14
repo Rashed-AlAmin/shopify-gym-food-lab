@@ -3597,6 +3597,8 @@ details-disclosure > details {
 }
 
 
+
+
 .discount-label {
   display: inline-block;
   background-color: #fff8e1;
@@ -3614,4 +3616,177 @@ details-disclosure > details {
   font-weight: 400;
   font-size: 0.85rem;
   opacity: 0.85;
+}
+
+/* ============================================
+   Flavour Modal — Task 2
+   ============================================ */
+
+.flavour-modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+}
+
+.flavour-modal-overlay--open {
+  display: flex;
+}
+
+.flavour-modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 28px;
+  max-width: 480px;
+  width: 90%;
+  margin: auto;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+
+.flavour-modal__header {
+  margin-bottom: 20px;
+  padding-right: 32px;
+}
+
+.flavour-modal__title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+
+.flavour-modal__subtitle {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0;
+}
+
+.flavour-modal__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #666;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.flavour-modal__close:hover {
+  background: #f0f0f0;
+}
+
+.flavour-modal__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.flavour-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.flavour-option:hover {
+  border-color: #a0a0a0;
+}
+
+.flavour-option--selected {
+  border-color: #2e7d32;
+  background: #f1f8f1;
+}
+
+.flavour-option--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.flavour-checkbox {
+  display: none;
+}
+
+.flavour-option__name {
+  font-size: 0.92rem;
+  font-weight: 500;
+  flex: 1;
+}
+
+.flavour-option__check {
+  display: none;
+  color: #2e7d32;
+  font-weight: 700;
+}
+
+.flavour-option--selected .flavour-option__check {
+  display: block;
+}
+
+.flavour-modal__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #eee;
+  padding-top: 16px;
+}
+
+.flavour-modal__selected-text {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0;
+}
+
+.flavour-modal__apply {
+  background: #2e7d32;
+  color: white;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.flavour-modal__apply:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.flavour-modal__apply:not(:disabled):hover {
+  background: #1b5e20;
+}
+
+.flavour-trigger-btn {
+  background: #fff8e1;
+  color: #e65100;
+  border: 2px solid #ffcc80;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: all 0.15s;
+}
+
+.flavour-trigger-btn:hover {
+  background: #fff3cd;
 }
