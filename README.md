@@ -1,6 +1,7 @@
 # Shopify Theme Development — Fitness Food Lab
 
 Live Store: https://fitness-food-lab.myshopify.com
+password:123 
 
 > Custom Shopify theme built on Dawn (Online Store 2.0)
 > demonstrating advanced Liquid, JavaScript, and Shopify 
