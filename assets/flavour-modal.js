@@ -17,41 +17,9 @@ class FlavourModal {
     this.bindCheckboxes();
     this.bindApply();
     this.hideButtons();
-    this.injectFlavourInput();
   }
 
- injectFlavourInput() {
-  /*
-    We intercept Dawn's fetch to /cart/add.js and inject
-    the flavour property into the request body.
-  */
-  const originalFetch = window.fetch;
-  window.fetch = async (url, options, ...args) => {
-    if (
-      typeof url === 'string' &&
-      url.includes('/cart/add') &&
-      options?.body &&
-      this.flavoursApplied &&
-      this.selectedFlavours.length > 0
-    ) {
-      try {
-        const body = JSON.parse(options.body);
-        body.properties = body.properties || {};
-        body.properties['Flavours'] = this.selectedFlavours.join(', ');
-        options = { ...options, body: JSON.stringify(body) };
-      } catch (e) {
-        // Body wasn't JSON, leave it alone
-      }
-    }
-    return originalFetch(url, options, ...args);
-  };
-}
-
   hideButtons() {
-    /*
-      Hide Add to Cart and Buy Now until flavours are applied.
-      Uses a wrapper approach so we don't break Dawn's JS.
-    */
     const submitBtn = document.querySelector('.product-form__submit');
     const buyNowWrap = document.querySelector('.shopify-payment-button');
 
@@ -70,15 +38,11 @@ class FlavourModal {
   }
 
   enableButtons() {
-    /*
-      Enable Add to Cart and Buy Now after flavours applied.
-    */
     if (this.submitBtn) {
       this.submitBtn.style.opacity = '';
       this.submitBtn.style.pointerEvents = '';
       this.submitBtn.title = '';
     }
-
     if (this.buyNowWrap) {
       this.buyNowWrap.style.opacity = '';
       this.buyNowWrap.style.pointerEvents = '';
@@ -120,7 +84,6 @@ class FlavourModal {
     const wrap = document.getElementById('flavour-trigger-wrap');
     if (wrap) wrap.style.display = 'block';
 
-    // Reset when variant changes — must reselect flavours
     this.resetSelections();
   }
 
@@ -150,8 +113,7 @@ class FlavourModal {
     const checked = document.querySelectorAll('.flavour-checkbox:checked');
     this.selectedFlavours = Array.from(checked).map(c => c.value);
 
-    const allCheckboxes = document.querySelectorAll('.flavour-checkbox');
-    allCheckboxes.forEach(cb => {
+    document.querySelectorAll('.flavour-checkbox').forEach(cb => {
       if (!cb.checked) {
         cb.disabled = checked.length >= this.maxCount;
         cb.closest('.flavour-option')?.classList.toggle(
@@ -177,18 +139,84 @@ class FlavourModal {
       ?.addEventListener('click', () => this.applyFlavours());
   }
 
-  applyFlavours() {
-  if (this.selectedFlavours.length === 0) return;
+  async applyFlavours() {
+    if (this.selectedFlavours.length === 0) return;
 
-  const flavourString = this.selectedFlavours.join(', ');
+    const flavourString = this.selectedFlavours.join(', ');
+    const applyBtn = document.getElementById('flavour-apply-btn');
 
-  // Update trigger button label
-  const triggerLabel = document.getElementById('flavour-trigger-label');
-  if (triggerLabel) triggerLabel.textContent = `— ${flavourString}`;
+    // Disable button to prevent double clicks
+    if (applyBtn) {
+      applyBtn.disabled = true;
+      applyBtn.textContent = 'Adding...';
+    }
 
-  this.flavoursApplied = true;
-  this.closeModal();
-  this.enableButtons();
+    try {
+      // Check current cart state
+      const cart = await fetch('/cart.js').then(r => r.json());
+      const existingItem = cart.items.find(
+        i => i.variant_id === this.currentVariantId
+      );
+
+      if (existingItem) {
+        /*
+          Item already in cart — update its properties.
+          Using line number (1-based index) is most reliable.
+          This REPLACES the item properties, no duplicate created.
+        */
+        const lineIndex = cart.items.indexOf(existingItem) + 1;
+        await fetch('/cart/change.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            line: lineIndex,
+            properties: { 'Flavours': flavourString }
+          })
+        });
+      } else {
+        /*
+          Item not in cart yet — add it fresh with properties.
+        */
+        await fetch('/cart/add.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: this.currentVariantId,
+            quantity: 1,
+            properties: { 'Flavours': flavourString }
+          })
+        });
+      }
+
+      // Update trigger button label
+      const triggerLabel = document.getElementById('flavour-trigger-label');
+      if (triggerLabel) triggerLabel.textContent = `— ${flavourString}`;
+
+      this.flavoursApplied = true;
+      this.closeModal();
+
+      // Hide Add to Cart — item already added via Apply
+      // Show it only as "Update" option if needed
+      this.enableButtons();
+
+      // Open Dawn's cart drawer the correct way
+      await this.openCartDrawer();
+
+    } catch (err) {
+      console.error('Flavour apply failed:', err);
+    } finally {
+      if (applyBtn) {
+        applyBtn.disabled = false;
+        applyBtn.textContent = 'Apply Flavours';
+      }
+    }
+  }
+
+ async openCartDrawer() {
+  // Wait 1 second for cart to save, then reload
+  // Page reload ensures cart drawer shows latest data
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  window.location.reload();
 }
 
   openModal() {
@@ -218,11 +246,6 @@ class FlavourModal {
     this.selectedFlavours = [];
     this.flavoursApplied = false;
 
-    // Clear hidden input
-    // const input = document.getElementById('flavour-property-input');
-    // if (input) input.value = '';
-
-    // Clear trigger label
     const triggerLabel = document.getElementById('flavour-trigger-label');
     if (triggerLabel) triggerLabel.textContent = '';
 
@@ -230,7 +253,6 @@ class FlavourModal {
     const applyBtn = document.getElementById('flavour-apply-btn');
     if (applyBtn) applyBtn.disabled = true;
 
-    // Hide buttons again since flavours reset
     this.hideButtons();
   }
 }
