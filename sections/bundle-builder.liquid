@@ -1,0 +1,297 @@
+{% comment %}
+  Bundle Builder — Main Section
+  All bundle configuration done in Theme Customizer.
+  No code changes needed to add new bundles or change prices.
+{% endcomment %}
+
+<div class="bundle-builder" id="bundle-builder">
+
+  {% comment %} Bundle listing page {% endcomment %}
+  <div class="bundle-list" id="bundle-list">
+    <h1 class="bundle-list__title">{{ section.settings.page_title }}</h1>
+    <p class="bundle-list__subtitle">{{ section.settings.page_subtitle }}</p>
+
+    <div class="bundle-list__grid">
+      {% for block in section.blocks %}
+        {% if block.type == 'bundle' %}
+          <div class="bundle-card" data-bundle-index="{{ forloop.index0 }}">
+            {% if block.settings.bundle_image != blank %}
+              <div class="bundle-card__image">
+                <img src="{{ block.settings.bundle_image | image_url: width: 800 }}"
+                     alt="{{ block.settings.bundle_title }}">
+              </div>
+            {% endif %}
+            <div class="bundle-card__info">
+              <p class="bundle-card__steps">{{ block.settings.bundle_description }}</p>
+              <h2 class="bundle-card__title">{{ block.settings.bundle_title }}</h2>
+              <div class="bundle-card__genders">
+                {% if block.settings.show_men %}
+                  <button class="bundle-card__gender-btn"
+                          data-bundle="{{ forloop.index0 }}"
+                          data-gender="men">
+                    Men
+                  </button>
+                {% endif %}
+                {% if block.settings.show_women %}
+                  <button class="bundle-card__gender-btn"
+                          data-bundle="{{ forloop.index0 }}"
+                          data-gender="women">
+                    Women
+                  </button>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  {% comment %} Bundle builder flow — hidden until bundle selected {% endcomment %}
+  <div class="bundle-flow" id="bundle-flow" style="display:none;">
+
+    {% comment %} Step tabs {% endcomment %}
+    <div class="bundle-flow__header">
+      <h2 class="bundle-flow__title" id="flow-title"></h2>
+      <div class="bundle-flow__steps" id="flow-steps"></div>
+    </div>
+
+    {% comment %} Two column layout {% endcomment %}
+    <div class="bundle-flow__body">
+
+      {% comment %} Left — product grid {% endcomment %}
+      <div class="bundle-flow__products" id="flow-products">
+        <div class="bundle-products-grid" id="products-grid"></div>
+        <button class="bundle-flow__nav-arrow bundle-flow__nav-arrow--next"
+                id="products-next">›</button>
+        <button class="bundle-flow__nav-arrow bundle-flow__nav-arrow--prev"
+                id="products-prev">‹</button>
+      </div>
+
+      {% comment %} Right — product detail + summary {% endcomment %}
+      <div class="bundle-flow__sidebar">
+        <div class="bundle-product-detail" id="product-detail">
+          <p class="bundle-product-detail__empty">Select a product to see details</p>
+        </div>
+
+        <div class="bundle-summary" id="bundle-summary">
+          <div class="bundle-summary__row">
+            <span>RRP</span>
+            <span id="summary-rrp">$0.00</span>
+          </div>
+          <div class="bundle-summary__row bundle-summary__row--price">
+            <span>Your Price</span>
+            <span id="summary-price">$0.00</span>
+          </div>
+          <div class="bundle-summary__row bundle-summary__row--savings">
+            <span>Kit Savings</span>
+            <span id="summary-savings">$0.00</span>
+          </div>
+
+          {% comment %} Selected items thumbnails {% endcomment %}
+          <div class="bundle-summary__items" id="summary-items"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+{% comment %} Pass bundle config to JS {% endcomment %}
+<script>
+  window.bundleConfig = {
+    bundles: [
+      {% for block in section.blocks %}
+        {% if block.type == 'bundle' %}
+        {
+          id: {{ forloop.index0 }},
+          title: {{ block.settings.bundle_title | json }},
+          description: {{ block.settings.bundle_description | json }},
+          steps: [
+            {
+              label: {{ block.settings.step1_label | default: 'Choose Jersey' | json }},
+              collection: {{ block.settings.men_step1_collection | default: '' | json }},
+              collection_women: {{ block.settings.women_step1_collection | default: '' | json }},
+              bundle_price: {{ block.settings.step1_price | default: 0 }},
+              max_select: {{ block.settings.step1_max | default: 1 }}
+            },
+            {
+              label: {{ block.settings.step2_label | default: 'Choose Bottom' | json }},
+              collection: {{ block.settings.men_step2_collection | default: '' | json }},
+              collection_women: {{ block.settings.women_step2_collection | default: '' | json }},
+              bundle_price: {{ block.settings.step2_price | default: 0 }},
+              max_select: {{ block.settings.step2_max | default: 1 }}
+            },
+            {
+              label: {{ block.settings.step3_label | default: 'Choose Socks' | json }},
+              collection: {{ block.settings.men_step3_collection | default: '' | json }},
+              collection_women: {{ block.settings.women_step3_collection | default: '' | json }},
+              bundle_price: {{ block.settings.step3_price | default: 0 }},
+              max_select: {{ block.settings.step3_max | default: 1 }}
+            }
+          ]
+        }{% unless forloop.last %},{% endunless %}
+        {% endif %}
+      {% endfor %}
+    ]
+  };
+</script>
+
+{% schema %}
+{
+  "name": "Bundle Builder",
+  "settings": [
+    {
+      "type": "text",
+      "id": "page_title",
+      "label": "Page Title",
+      "default": "Build Your Kit & Save!"
+    },
+    {
+      "type": "text",
+      "id": "page_subtitle",
+      "label": "Page Subtitle",
+      "default": "Select your bundle and start building your kit"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "bundle",
+      "name": "Bundle",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "bundle_image",
+          "label": "Bundle Image"
+        },
+        {
+          "type": "text",
+          "id": "bundle_title",
+          "label": "Bundle Title",
+          "default": "Summer Classic"
+        },
+        {
+          "type": "text",
+          "id": "bundle_description",
+          "label": "Bundle Description",
+          "default": "Jersey + Bib Shorts + Socks"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_men",
+          "label": "Show Men option",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_women",
+          "label": "Show Women option",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Step 1"
+        },
+        {
+          "type": "text",
+          "id": "step1_label",
+          "label": "Step 1 Label",
+          "default": "Choose Jersey"
+        },
+        {
+          "type": "collection",
+          "id": "men_step1_collection",
+          "label": "Men — Step 1 Collection"
+        },
+        {
+          "type": "collection",
+          "id": "women_step1_collection",
+          "label": "Women — Step 1 Collection"
+        },
+        {
+          "type": "number",
+          "id": "step1_price",
+          "label": "Step 1 Bundle Price",
+          "default": 100
+        },
+        {
+          "type": "number",
+          "id": "step1_max",
+          "label": "Max products selectable at step 1",
+          "default": 1
+        },
+        {
+          "type": "header",
+          "content": "Step 2"
+        },
+        {
+          "type": "text",
+          "id": "step2_label",
+          "label": "Step 2 Label",
+          "default": "Choose Bottom"
+        },
+        {
+          "type": "collection",
+          "id": "men_step2_collection",
+          "label": "Men — Step 2 Collection"
+        },
+        {
+          "type": "collection",
+          "id": "women_step2_collection",
+          "label": "Women — Step 2 Collection"
+        },
+        {
+          "type": "number",
+          "id": "step2_price",
+          "label": "Step 2 Bundle Price",
+          "default": 50
+        },
+        {
+          "type": "number",
+          "id": "step2_max",
+          "label": "Max products selectable at step 2",
+          "default": 1
+        },
+        {
+          "type": "header",
+          "content": "Step 3"
+        },
+        {
+          "type": "text",
+          "id": "step3_label",
+          "label": "Step 3 Label",
+          "default": "Choose Socks"
+        },
+        {
+          "type": "collection",
+          "id": "men_step3_collection",
+          "label": "Men — Step 3 Collection"
+        },
+        {
+          "type": "collection",
+          "id": "women_step3_collection",
+          "label": "Women — Step 3 Collection"
+        },
+        {
+          "type": "number",
+          "id": "step3_price",
+          "label": "Step 3 Bundle Price",
+          "default": 30
+        },
+        {
+          "type": "number",
+          "id": "step3_max",
+          "label": "Max products selectable at step 3",
+          "default": 1
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Bundle Builder"
+    }
+  ]
+}
+{% endschema %}

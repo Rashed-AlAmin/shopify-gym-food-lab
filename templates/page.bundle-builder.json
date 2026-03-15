@@ -1,0 +1,53 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "bundle-builder": {
+      "type": "bundle-builder",
+      "blocks": {
+        "bundle_K83JzH": {
+          "type": "bundle",
+          "settings": {
+            "bundle_image": "shopify://shop_images/summer.jpg",
+            "bundle_title": "Summer Classic",
+            "bundle_description": "Jersey + Bib Shorts + Socks",
+            "show_men": true,
+            "show_women": true,
+            "step1_label": "Choose Jersey",
+            "men_step1_collection": "jerseys",
+            "women_step1_collection": "",
+            "step1_price": 1000,
+            "step1_max": 1,
+            "step2_label": "Choose Bottom",
+            "men_step2_collection": "shorts",
+            "women_step2_collection": "",
+            "step2_price": 700,
+            "step2_max": 1,
+            "step3_label": "Choose Socks",
+            "men_step3_collection": "socks",
+            "women_step3_collection": "",
+            "step3_price": 300,
+            "step3_max": 1
+          }
+        }
+      },
+      "block_order": [
+        "bundle_K83JzH"
+      ],
+      "settings": {
+        "page_title": "Build Your Kit & Save!",
+        "page_subtitle": "Select your bundle and start building your kit"
+      }
+    }
+  },
+  "order": [
+    "bundle-builder"
+  ]
+}
