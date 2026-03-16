@@ -283,63 +283,68 @@ class BundleBuilder {
   }
 
   async goToCheckout() {
-    /*
-      Part 4 — Backend pricing via Draft Orders API.
-      We send selected products + bundle prices to our
-      backend endpoint which creates a Draft Order with
-      overridden line item prices, then redirects to
-      the draft order checkout URL.
-    */
-    const lineItems = this.selectedProducts.map(sel => ({
+
+    // Block partial bundle — all steps must be completed
+  const totalSteps = this.currentBundle.steps.length;
+  const completedSteps = this.selectedProducts.filter(p => p).length;
+  
+  if (completedSteps < totalSteps) {
+    alert(`Please complete all ${totalSteps} steps before checking out.`);
+    return;
+  }
+
+  const lineItems = this.selectedProducts.map(sel => {
+    const variant = sel.product.variants.find(
+      v => v.id == sel.variantId
+    );
+    return {
       variant_id: parseInt(sel.variantId),
       quantity: 1,
-      price: sel.bundlePrice.toString()
-    }));
+      price: sel.bundlePrice.toString(),
+      original_price: variant ? variant.price : sel.bundlePrice.toString()
+    };
+  });
 
-    try {
-      const response = await fetch('/apps/bundle-checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ line_items: lineItems })
-      });
-
-      const data = await response.json();
-
-      if (data.checkout_url) {
-        window.location.href = data.checkout_url;
-      } else {
-        // Fallback — add to cart normally if backend not available
-        await this.addToCartFallback();
-      }
-    } catch (e) {
-      // Backend not available — use cart fallback
-      await this.addToCartFallback();
-    }
+  // Show loading state on button
+  const confirmBtn = document.getElementById('confirm-btn');
+  if (confirmBtn) {
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Processing...';
   }
 
-  async addToCartFallback() {
-    /*
-      Fallback when Draft Orders backend isn't available.
-      Adds items to cart normally — prices won't be
-      overridden but the bundle flow still works for demo.
-    */
-    const items = this.selectedProducts.map(sel => ({
-      id: parseInt(sel.variantId),
-      quantity: 1,
-      properties: {
-        'Bundle Price': '৳' + sel.bundlePrice,
-        'Bundle': this.currentBundle.title
-      }
-    }));
+  try {
+    // http://localhost:3000/bundle-checkout
+    // https://bundle-backend-service.onrender.com/bundle-checkout
 
-    await fetch('/cart/add.js', {
+    const response = await fetch('https://bundle-backend-service.onrender.com/bundle-checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items })
+      body: JSON.stringify({ line_items: lineItems })
     });
 
-    window.location.href = '/cart';
+    const data = await response.json();
+
+    if (data.checkout_url) {
+      window.location.href = data.checkout_url;
+    } else {
+      alert('Checkout failed. Please try again.');
+      if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = 'GO TO CHECKOUT';
+      }
+    }
+
+  } catch (e) {
+    console.error('Checkout error:', e);
+    alert('Could not connect to checkout service. Please try again in a moment.');
+    if (confirmBtn) {
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = 'GO TO CHECKOUT';
+    }
   }
+}
+
+  
 
   showError(msg) {
     document.getElementById('products-grid').innerHTML =

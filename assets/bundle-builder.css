@@ -91,15 +91,17 @@
 }
 
 .bundle-flow__title {
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-size: 1.4rem;
+  font-weight: 800;
   margin-bottom: 12px;
+  text-transform: uppercase;
 }
 
 .bundle-step-tab {
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: #999;
   cursor: pointer;
+  font-weight: 500;
 }
 
 .bundle-step-tab.active {
@@ -302,16 +304,26 @@
 }
 
 .bundle-summary__thumb {
-  width: 60px;
-  height: 60px;
+  width: 90px;
+  height: 90px;
   object-fit: contain;
   border: 1px solid #eee;
   border-radius: 4px;
   background: #f9f9f9;
 }
-
 .bundle-product-detail__empty {
   color: #999;
   font-size: 0.9rem;
   padding: 20px 0;
+}
+
+
+.bundle-card__coming-soon {
+  background: rgba(255,255,255,0.2);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.5);
+  padding: 6px 18px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
 }

@@ -25,6 +25,9 @@
               <p class="bundle-card__steps">{{ block.settings.bundle_description }}</p>
               <h2 class="bundle-card__title">{{ block.settings.bundle_title }}</h2>
               <div class="bundle-card__genders">
+                {% if block.settings.show_men == false and block.settings.show_women == false %}
+                 <span class="bundle-card__coming-soon">Coming Soon</span>
+                 {% endif %}
                 {% if block.settings.show_men %}
                   <button class="bundle-card__gender-btn"
                           data-bundle="{{ forloop.index0 }}"
